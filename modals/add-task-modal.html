@@ -1,0 +1,133 @@
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTaskModalLabel">Yeni Görev Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addTaskForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="taskOrderNo" class="form-label">Sipariş No</label>
+                            <select class="form-select" id="taskOrderNo" required>
+                                <option value="" selected disabled>Sipariş seçin...</option>
+                                <option value="#0424-1251">#0424-1251 - AYEDAŞ</option>
+                                <option value="#0424-1245">#0424-1245 - TEİAŞ</option>
+                                <option value="#0424-1239">#0424-1239 - BEDAŞ</option>
+                                <option value="#0424-1235">#0424-1235 - OSMANİYE ELEKTRİK</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="taskStage" class="form-label">Üretim Aşaması</label>
+                            <select class="form-select" id="taskStage" required>
+                                <option value="" selected disabled>Aşama seçin...</option>
+                                <option value="Elektrik Tasarım">Elektrik Tasarım</option>
+                                <option value="Mekanik Tasarım">Mekanik Tasarım</option>
+                                <option value="Malzeme Tedarik">Malzeme Tedarik</option>
+                                <option value="Mekanik Montaj">Mekanik Montaj</option>
+                                <option value="Kablaj">Kablaj</option>
+                                <option value="Test">Test</option>
+                                <option value="Sevkiyat">Sevkiyat</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="taskResponsible" class="form-label">Sorumlu</label>
+                            <select class="form-select" id="taskResponsible" required>
+                                <option value="" selected disabled>Sorumlu seçin...</option>
+                                <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+                                <option value="Mehmet Demir">Mehmet Demir</option>
+                                <option value="Ayşe Kaya">Ayşe Kaya</option>
+                                <option value="Fatma Şahin">Fatma Şahin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="taskPlannedHours" class="form-label">Planlanan Süre (saat)</label>
+                            <input type="number" class="form-control" id="taskPlannedHours" min="1" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="taskStartDate" class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" class="form-control" id="taskStartDate" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="taskEndDate" class="form-label">Bitiş Tarihi</label>
+                            <input type="date" class="form-control" id="taskEndDate" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="taskStatus" class="form-label">Durum</label>
+                            <select class="form-select" id="taskStatus" required>
+                                <option value="not_started" selected>Başlanmadı</option>
+                                <option value="in_progress">Devam Ediyor</option>
+                                <option value="completed">Tamamlandı</option>
+                                <option value="delayed">Gecikti</option>
+                                <option value="cancelled">İptal</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="taskProgress" class="form-label">İlerleme (%)</label>
+                            <input type="range" class="form-range" id="taskProgress" min="0" max="100" value="0">
+                            <div class="text-center">
+                                <span id="taskProgressValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="delayReasonContainer" style="display: none;">
+                        <label for="taskDelayReason" class="form-label">Gecikme Nedeni</label>
+                        <select class="form-select" id="taskDelayReason">
+                            <option value="" selected>Seçiniz...</option>
+                            <option value="Malzeme eksikliği">Malzeme eksikliği</option>
+                            <option value="Teknik sorun">Teknik sorun</option>
+                            <option value="Personel yetersizliği">Personel yetersizliği</option>
+                            <option value="Öncelik değişimi">Öncelik değişimi</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskNotes" class="form-label">Notlar</label>
+                        <textarea class="form-control" id="taskNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="saveTaskBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide delay reason based on status selection
+        const statusSelect = document.getElementById('taskStatus');
+        const delayReasonContainer = document.getElementById('delayReasonContainer');
+        
+        if (statusSelect && delayReasonContainer) {
+            statusSelect.addEventListener('change', function() {
+                if (this.value === 'delayed') {
+                    delayReasonContainer.style.display = 'block';
+                    document.getElementById('taskDelayReason').setAttribute('required', 'required');
+                } else {
+                    delayReasonContainer.style.display = 'none';
+                    document.getElementById('taskDelayReason').removeAttribute('required');
+                }
+            });
+        }
+        
+        // Update progress value display
+        const progressRange = document.getElementById('taskProgress');
+        const progressValue = document.getElementById('taskProgressValue');
+        
+        if (progressRange && progressValue) {
+            progressRange.addEventListener('input', function() {
+                progressValue.textContent = this.value + '%';
+            });
+        }
+    });
+</script>

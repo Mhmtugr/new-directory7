@@ -1,0 +1,98 @@
+/* Günlük Görev Yönetimi Modülü Stilleri */
+
+.task-filters {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.task-stats {
+    margin-bottom: 20px;
+}
+
+.task-stat-card {
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.task-stat-card h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+.task-stat-card p {
+    margin-bottom: 0;
+    color: #6c757d;
+}
+
+/* Tablo stilleri */
+#taskTable {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+#taskTable th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#taskTable td, #taskTable th {
+    padding: 10px;
+}
+
+#taskTable tr.task-completed {
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+#taskTable tr.task-delayed {
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+#taskTable tr.task-in-progress {
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+.task-progress {
+    height: 6px;
+    margin-bottom: 2px;
+}
+
+.task-progress .progress-bar {
+    background-color: #28a745;
+}
+
+.task-progress-text {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* Durum rozetleri */
+.status-badge {
+    padding: 5px 8px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Mobil uyumlu */
+@media (max-width: 992px) {
+    #taskTable .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    #taskTable td, #taskTable th {
+        padding: 8px 5px;
+        font-size: 0.85rem;
+    }
+    
+    .task-responsive-table {
+        overflow-x: auto;
+    }
+}
