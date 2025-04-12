@@ -4639,6 +4639,1185 @@ Lütfen analiz etmemi istediğiniz teknik konuyu detaylandırır mısınız? Eki
             return true;
         }
     </script>
+    
+    <!-- Gelişmiş Yapay Zeka Asistanı -->
+    <script>
+        // Gelişmiş Yapay Zeka Asistanı için global değişkenler
+        const aiAssistant = {
+            conversationHistory: [],
+            currentMode: 'assistant',
+            context: null,
+            systemTrainingData: {},
+            learningData: [],
+            predictionModels: {},
+            reportTemplates: {},
+            currentSession: {
+                id: `session-${Date.now()}`,
+                startTime: new Date().toISOString(),
+                messages: []
+            },
+            modelVersion: '1.0.5',
+            knowledgeBase: {
+                lastUpdated: new Date().toISOString(),
+                sources: ['technical-docs', 'erp-data', 'production-history']
+            },
+            continuousLearningEnabled: true
+        };
+        
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            // AI chatbot butonu için event listener ekle
+            const chatbotBtn = document.getElementById('ai-chatbot-btn');
+            if (chatbotBtn) {
+                chatbotBtn.addEventListener('click', openAIAssistant);
+            }
+            
+            // Yapay Zeka sistemini başlat
+            initializeAISystem();
+        });
+
+        // Yapay Zeka Sistemini Başlat
+        async function initializeAISystem() {
+            console.log("Gelişmiş Yapay Zeka Sistemi başlatılıyor...");
+            
+            try {
+                // Sistem verilerini yükle
+                await loadSystemData();
+                
+                // Tahmin modellerini başlat
+                initPredictionModels();
+                
+                // Öğrenme verisini topla
+                gatherLearningData();
+                
+                // Eğitim verisini yükle
+                loadTrainingData();
+                
+                // Geçmiş konuşmaları yükle
+                loadConversationsFromStorage();
+                
+                console.log("Gelişmiş Yapay Zeka Sistemi başarıyla başlatıldı");
+                
+                // Otomatik uyarı işleme döngüsünü başlat (sürekli öğrenme)
+                startContinuousLearning();
+            } catch (error) {
+                console.error("Yapay Zeka Sistemi başlatılırken hata:", error);
+                showNetworkStatusNotification('AI sistemi başlatılırken bir sorun oluştu', 'danger');
+            }
+        }
+
+        // Sürekli öğrenme döngüsünü başlat
+        function startContinuousLearning() {
+            if (!aiAssistant.continuousLearningEnabled) return;
+            
+            console.log("Sürekli öğrenme döngüsü başlatılıyor...");
+            
+            // Her 30 dakikada bir sistem verilerini analiz et ve öğren
+            setInterval(async () => {
+                try {
+                    // Yeni verileri topla
+                    const newData = await collectNewSystemData();
+                    
+                    // Topladığın yeni verilerle öğren
+                    learnFromNewData(newData);
+                    
+                    // Tahmin modelini güncelle
+                    updatePredictionModels();
+                    
+                    console.log("Yapay Zeka sistemi yeni verilerden öğrendi");
+                } catch (error) {
+                    console.error("Sürekli öğrenme sürecinde hata:", error);
+                }
+            }, 30 * 60 * 1000); // 30 dakika
+            
+            // Her 2 saatte bir uyarı analizi yap
+            setInterval(() => {
+                try {
+                    // Sistem verilerine göre potansiyel sorunları tespit et
+                    const potentialIssues = detectPotentialIssues();
+                    
+                    // Ciddi sorunlar varsa bildirim oluştur
+                    if (potentialIssues && potentialIssues.length > 0) {
+                        notifyAboutPotentialIssues(potentialIssues);
+                    }
+                } catch (error) {
+                    console.error("Uyarı analizi sürecinde hata:", error);
+                }
+            }, 2 * 60 * 60 * 1000); // 2 saat
+        }
+
+        // Yeni sistem verilerini topla
+        async function collectNewSystemData() {
+            // Gerçek uygulamada API'den veri çekilecek
+            // Bu demo sürümünde simüle edilmiş veri döndürüyoruz
+            return {
+                orders: [
+                    { id: '#0424-1285', status: 'new', description: 'Yeni sipariş eklendi', timestamp: Date.now() },
+                    { id: '#0424-1233', status: 'completed', description: 'Sipariş tamamlandı', timestamp: Date.now() }
+                ],
+                materials: [
+                    { id: 'M002', name: 'KAP-80/190-95 Akım Trafosu', stock: 5, critical: false, timestamp: Date.now() }
+                ],
+                issues: [
+                    { id: 'I001', orderId: '#0424-1245', description: 'Malzeme gecikmesi çözüldü', status: 'resolved', timestamp: Date.now() }
+                ]
+            };
+        }
+
+        // Yeni verilerle öğren
+        function learnFromNewData(newData) {
+            if (!newData) return;
+            
+            // Öğrenme verilerine ekle
+            aiAssistant.learningData.push({
+                type: 'system_data',
+                timestamp: new Date().toISOString(),
+                data: newData
+            });
+            
+            // Öğrenme verilerini limitle (son 100 veriyi tut)
+            if (aiAssistant.learningData.length > 100) {
+                aiAssistant.learningData = aiAssistant.learningData.slice(-100);
+            }
+            
+            // Sistem bilgi tabanını güncelle
+            updateKnowledgeBase(newData);
+            
+            // Öğrenme verilerini persistent storage'da sakla
+            localStorage.setItem('metsAiLearningData', JSON.stringify(aiAssistant.learningData));
+        }
+
+        // Bilgi tabanını güncelle
+        function updateKnowledgeBase(newData) {
+            aiAssistant.knowledgeBase.lastUpdated = new Date().toISOString();
+            
+            // Burada gerçek bir uygulamada bilgi tabanı güncelleme işlemleri yapılır
+            // Örneğin: Makine öğrenmesi modelinin retrain edilmesi, veri paternlerinin analizi vb.
+            
+            console.log("Bilgi tabanı güncellendi:", aiAssistant.knowledgeBase.lastUpdated);
+        }
+
+        // Tahmin modellerini güncelle
+        function updatePredictionModels() {
+            // Gerçek bir uygulamada makine öğrenmesi modellerini güncelleme işlemleri burada yapılır
+            console.log("Tahmin modelleri güncellendi");
+        }
+
+        // Potansiyel sorunları tespit et
+        function detectPotentialIssues() {
+            // Gerçek bir uygulamada makine öğrenmesi ve veri analiziyle sorun tespiti yapılır
+            // Bu demo için simüle edilmiş veri döndürüyoruz
+            
+            // Rastgele sorun tespiti
+            if (Math.random() > 0.7) { // %30 ihtimalle sorun tespit et
+                return [
+                    {
+                        type: 'material_shortage',
+                        severity: 'high',
+                        description: 'Siemens rölesi stok seviyesi kritik eşiğin altına düşecek',
+                        affectedOrders: ['#0424-1251'],
+                        prediction: 'Önümüzdeki 3 gün içinde stok tükenebilir',
+                        confidence: 0.85
+                    }
+                ];
+            }
+            
+            return [];
+        }
+
+        // Potansiyel sorunlar hakkında bildirim oluştur
+        function notifyAboutPotentialIssues(issues) {
+            if (!issues || issues.length === 0) return;
+            
+            issues.forEach(issue => {
+                // Uyarı bildirimi göster
+                showNetworkStatusNotification(
+                    `AI Tahmin: ${issue.description} - ${issue.prediction}`, 
+                    issue.severity === 'high' ? 'danger' : 'warning'
+                );
+                
+                // Yapay Zeka rozeti için sayacı güncelle
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    let count = parseInt(badge.textContent) || 0;
+                    badge.textContent = count + 1;
+                    badge.style.display = 'flex';
+                    badge.classList.add('has-alerts');
+                }
+            });
+        }
+
+        // Yapay Zeka Asistanını aç
+        function openAIAssistant() {
+            // AI Chat Modal'ını güncelle ve daha gelişmiş hale getir
+            const aiChatModal = document.getElementById('aiChatModal');
+            // Eski modal varsa kaldır
+            if (aiChatModal) {
+                aiChatModal.remove();
+            }
+            
+            // Yeni gelişmiş AI Chat Modal'ı oluştur
+            const modalHtml = `
+                <div class="modal fade" id="aiChatModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title"><i class="bi bi-robot"></i> METS Asistan</h5>
+                                <div class="ms-auto me-2">
+                                    <div class="dropdown d-inline-block me-2">
+                                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="aiModeSwitcher" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-gear"></i> Mod
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="aiModeSwitcher">
+                                            <li><a class="dropdown-item active" href="#" data-ai-mode="assistant"><i class="bi bi-chat-dots"></i> Asistan Modu</a></li>
+                                            <li><a class="dropdown-item" href="#" data-ai-mode="analyst"><i class="bi bi-bar-chart"></i> Analiz Modu</a></li>
+                                            <li><a class="dropdown-item" href="#" data-ai-mode="reporter"><i class="bi bi-file-text"></i> Rapor Modu</a></li>
+                                            <li><a class="dropdown-item" href="#" data-ai-mode="predictor"><i class="bi bi-graph-up-arrow"></i> Tahmin Modu</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" data-ai-mode="expert"><i class="bi bi-mortarboard"></i> Uzman Modu</a></li>
+                                        </ul>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-light" id="aiHistoryBtn" title="Konuşma Geçmişi">
+                                        <i class="bi bi-clock-history"></i>
+                                    </button>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                            </div>
+                            <div class="modal-body" style="height: 500px; overflow-y: auto;">
+                                <div id="chatMessages" class="pb-5"></div>
+                            </div>
+                            <div class="modal-footer p-2">
+                                <div class="input-group" style="position: relative;">
+                                    <span class="input-group-text bg-light" id="aiContextIndicator" title="Mevcut Bağlam">
+                                        <i class="bi bi-chat"></i>
+                                    </span>
+                                    <textarea type="text" id="aiChatInput" class="form-control" placeholder="Sorunuzu yazın..." rows="1" style="resize: none;"></textarea>
+                                    <button class="btn btn-primary" id="sendChatBtn">Gönder</button>
+                                    <button class="btn btn-outline-secondary" type="button" id="aiAttachBtn" title="Dosya/Veri Ekle">
+                                        <i class="bi bi-paperclip"></i>
+                                    </button>
+                                    <div id="aiSuggestions" class="position-absolute bg-white shadow rounded p-2" style="bottom: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; display: none; z-index: 1050;">
+                                        <p class="text-muted small mb-2">Önerilen Sorular:</p>
+                                        <div class="d-flex flex-wrap gap-1" id="aiSuggestionsContent"></div>
+                                    </div>
+                                </div>
+                                <div class="w-100">
+                                    <div class="form-text text-end small">
+                                        <a href="#" id="aiToggleSuggestions">Önerileri göster</a> | 
+                                        <a href="#" id="aiClearConversation">Konuşmayı temizle</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Rapor Oluşturucu Modal -->
+                <div class="modal fade" id="aiReportModal" tabindex="-1" aria-labelledby="aiReportModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="aiReportModalLabel"><i class="bi bi-file-earmark-text"></i> Rapor Oluşturucu</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="reportType" class="form-label">Rapor Türü</label>
+                                    <select class="form-select" id="reportType">
+                                        <option value="daily">Günlük Durum Raporu</option>
+                                        <option value="weekly">Haftalık İlerleme Raporu</option>
+                                        <option value="monthly">Aylık Üretim Raporu</option>
+                                        <option value="meeting">Toplantı Özeti ve Aksiyon Noktaları</option>
+                                        <option value="performance">Birim Performans Raporu</option>
+                                        <option value="forecast">Üretim Tahmin Raporu</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reportDateRange" class="form-label">Tarih Aralığı</label>
+                                    <div class="input-group">
+                                        <input type="date" class="form-control" id="reportStartDate">
+                                        <span class="input-group-text">ile</span>
+                                        <input type="date" class="form-control" id="reportEndDate">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reportDepartments" class="form-label">İlgili Birimler</label>
+                                    <select class="form-select" id="reportDepartments" multiple>
+                                        <option value="all" selected>Tüm Birimler</option>
+                                        <option value="sales">Satış</option>
+                                        <option value="design-electrical">Elektrik Tasarım</option>
+                                        <option value="design-mechanical">Mekanik Tasarım</option>
+                                        <option value="purchasing">Satın Alma</option>
+                                        <option value="production-mechanical">Mekanik Üretim</option>
+                                        <option value="production-assembly">Montaj</option>
+                                        <option value="production-wiring">Kablaj</option>
+                                        <option value="quality">Kalite Kontrol</option>
+                                        <option value="testing">Test</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reportFocus" class="form-label">Rapor Odağı</label>
+                                    <select class="form-select" id="reportFocus">
+                                        <option value="overview" selected>Genel Bakış</option>
+                                        <option value="delays">Gecikmeler ve Çözümler</option>
+                                        <option value="materials">Malzeme Durumu</option>
+                                        <option value="quality">Kalite Sorunları</option>
+                                        <option value="resources">Kaynak Kullanımı</option>
+                                        <option value="custom">Özel Rapor</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3" id="customReportCriteriaContainer" style="display: none;">
+                                    <label for="customReportCriteria" class="form-label">Özel Rapor Kriterleri</label>
+                                    <textarea class="form-control" id="customReportCriteria" rows="3" placeholder="Özel rapor için incelenmesini istediğiniz noktaları belirtin..."></textarea>
+                                </div>
+                                <div class="alert alert-info">
+                                    <h6><i class="bi bi-info-circle"></i> Yapay Zeka Asistanınız raporu nasıl hazırlayacak?</h6>
+                                    <p class="mb-0 small">Sistem, seçtiğiniz kriterlere göre üretim verilerini, uyarıları, malzeme durumunu, iş emirlerini ve geçmiş verileri analiz ederek kapsamlı bir rapor oluşturacaktır. Sorunlar, tamamlanan işler ve öneriler dahil edilecektir.</p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="form-check me-auto">
+                                    <input class="form-check-input" type="checkbox" id="includeCharts" checked>
+                                    <label class="form-check-label" for="includeCharts">
+                                        Grafikleri dahil et
+                                    </label>
+                                </div>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                                <button type="button" class="btn btn-primary" id="generateReportBtn">Rapor Oluştur</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Tahmin Paneli Modal -->
+                <div class="modal fade" id="aiPredictionModal" tabindex="-1" aria-labelledby="aiPredictionModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="aiPredictionModalLabel"><i class="bi bi-graph-up-arrow"></i> Üretim Tahmin Paneli</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-4">
+                                        <div class="card h-100">
+                                            <div class="card-header">
+                                                Potansiyel Riskler
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="predictionRisks" class="list-group">
+                                                    <div class="list-group-item list-group-item-danger d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="mb-1">Malzeme Tedarik Gecikmesi</h6>
+                                                            <p class="mb-1 small">Akım trafosu tedarikinde 1 hafta gecikme riski (%78)</p>
+                                                        </div>
+                                                        <span class="badge bg-danger">Kritik</span>
+                                                    </div>
+                                                    <div class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="mb-1">Üretim Kapasitesi Aşımı</h6>
+                                                            <p class="mb-1 small">Mekanik üretim kapasitesi 15-20 Kasım arası yetersiz kalabilir (%65)</p>
+                                                        </div>
+                                                        <span class="badge bg-warning">Dikkat</span>
+                                                    </div>
+                                                    <div class="list-group-item list-group-item-warning d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="mb-1">Test Süresi Yetersizliği</h6>
+                                                            <p class="mb-1 small">#0424-1251 siparişinin testi için zaman kısıtlı (%60)</p>
+                                                        </div>
+                                                        <span class="badge bg-warning">Dikkat</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer text-end">
+                                                <a href="#" class="text-decoration-none small">Tüm riskleri gör <i class="bi bi-chevron-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card h-100">
+                                            <div class="card-header">
+                                                Teslimat Tahmin Grafiği
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="deliveryPredictionChart" height="250"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                Öneriler
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="list-group">
+                                                    <div class="list-group-item">
+                                                        <h6 class="mb-1">Alternatif Tedarikçi Seçeneği</h6>
+                                                        <p class="mb-1 small">Akım trafosu için X Firmasından acil tedarik seçeneği değerlendirilmeli. Analiz edilen geçmiş verilerde bu firmanın acil durumlarda 3 günlük teslimat süresi mevcut.</p>
+                                                        <div class="d-flex justify-content-end">
+                                                            <button class="btn btn-sm btn-outline-primary me-2">Detay</button>
+                                                            <button class="btn btn-sm btn-success">Uygula</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="list-group-item">
+                                                        <h6 class="mb-1">Üretim Önceliklendirmesi</h6>
+                                                        <p class="mb-1 small">Mekanik üretim kapasitesi için #0424-1251 siparişinin önceliğini artırarak, diğer işleri ötelemeniz önerilir.</p>
+                                                        <div class="d-flex justify-content-end">
+                                                            <button class="btn btn-sm btn-outline-primary me-2">Detay</button>
+                                                            <button class="btn btn-sm btn-success">Uygula</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                Optimizasyon Fırsatları
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="list-group">
+                                                    <div class="list-group-item">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <h6 class="mb-1">Verimlilik İyileştirmesi</h6>
+                                                            <span class="badge bg-info">+15% Potansiyel</span>
+                                                        </div>
+                                                        <p class="mb-1 small">Mekanik montaj süreçlerinde son 3 ayda tekrarlanan hataları analiz ederek, süreç değişikliği önermek istiyorum.</p>
+                                                        <div class="progress mt-2" style="height: 5px;">
+                                                            <div class="progress-bar bg-info" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="list-group-item">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <h6 class="mb-1">Stok Optimizasyonu</h6>
+                                                            <span class="badge bg-success">Maliyet Tasarrufu</span>
+                                                        </div>
+                                                        <p class="mb-1 small">Bara malzemesi için JIT (tam zamanında) tedarik modelini öneririm. Simülasyon modelim %12 maliyet tasarrufu öngörüyor.</p>
+                                                        <div class="progress mt-2" style="height: 5px;">
+                                                            <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer text-end">
+                                                <a href="#" class="text-decoration-none small">Tüm fırsatları analiz et <i class="bi bi-chevron-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-primary" id="refreshPredictionBtn">
+                                    <i class="bi bi-arrow-repeat"></i> Tahminleri Güncelle
+                                </button>
+                                <button type="button" class="btn btn-primary" id="predictCustomScenarioBtn">
+                                    <i class="bi bi-calculator"></i> Senaryo Analizi
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // HTML'i sayfaya ekle
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // CSS ekle
+            const styleElement = document.createElement('style');
+            styleElement.textContent = `
+                /* Chatbot arayüz stilleri */
+                .chat-message {
+                    margin-bottom: 10px;
+                    padding: 12px 15px;
+                    border-radius: 10px;
+                    max-width: 85%;
+                    position: relative;
+                    line-height: 1.5;
+                }
+                
+                .user-message {
+                    background-color: #e3f2fd;
+                    margin-left: auto;
+                    border-bottom-right-radius: 2px;
+                }
+                
+                .ai-message {
+                    background-color: #f6f8fa;
+                    margin-right: auto;
+                    border-bottom-left-radius: 2px;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                }
+                
+                .ai-message:before {
+                    content: '';
+                    position: absolute;
+                    left: -6px;
+                    bottom: 0;
+                    width: 10px;
+                    height: 10px;
+                    background-color: #f6f8fa;
+                    transform: skewX(-45deg);
+                    border-radius: 2px;
+                }
+                
+                .user-message:after {
+                    content: '';
+                    position: absolute;
+                    right: -6px;
+                    bottom: 0;
+                    width: 10px;
+                    height: 10px;
+                    background-color: #e3f2fd;
+                    transform: skewX(45deg);
+                    border-radius: 2px;
+                }
+                
+                .chat-message code {
+                    background-color: rgba(0, 0, 0, 0.05);
+                    padding: 2px 5px;
+                    border-radius: 3px;
+                    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+                    font-size: 0.9em;
+                }
+                
+                .chat-message pre {
+                    background-color: #282c34;
+                    color: #f8f8f2;
+                    padding: 10px;
+                    border-radius: 5px;
+                    overflow-x: auto;
+                    margin: 10px 0;
+                }
+                
+                .suggestion-btn {
+                    transition: all 0.2s ease;
+                }
+                
+                .suggestion-btn:hover {
+                    transform: translateY(-2px);
+                }
+                
+                /* Typing indicator animation */
+                .typing-indicator {
+                    display: inline-flex;
+                    align-items: center;
+                }
+                
+                .typing-indicator span {
+                    width: 6px;
+                    height: 6px;
+                    background-color: #3498db;
+                    border-radius: 50%;
+                    display: inline-block;
+                    margin: 0 1px;
+                    animation: typing 1s infinite ease-in-out;
+                }
+                
+                .typing-indicator span:nth-child(1) {
+                    animation-delay: 0.1s;
+                }
+                
+                .typing-indicator span:nth-child(2) {
+                    animation-delay: 0.2s;
+                }
+                
+                .typing-indicator span:nth-child(3) {
+                    animation-delay: 0.3s;
+                }
+                
+                @keyframes typing {
+                    0% { transform: translateY(0); }
+                    50% { transform: translateY(-5px); }
+                    100% { transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(styleElement);
+            
+            // Event listener'ları ekle
+            setupAIAssistantEventListeners();
+            
+            // Modal'ı göster
+            const modal = new bootstrap.Modal(document.getElementById('aiChatModal'));
+            modal.show();
+            
+            // İlk kez açılıyorsa ya da yeni oturum başlatıldıysa karşılama mesajı göster
+            if (aiAssistant.currentSession.messages.length === 0) {
+                displayAIMessage(getWelcomeMessage(), false);
+                displaySuggestions();
+            }
+            
+            // Bildirim işaretini temizle
+            const badge = document.querySelector('.notification-badge');
+            if (badge) badge.style.display = 'none';
+            
+            // Input alanına odaklan
+            setTimeout(() => {
+                const inputField = document.getElementById('aiChatInput');
+                if (inputField) inputField.focus();
+                
+                // Textarea otomatik boyutlandırma
+                inputField.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight < 150) ? (this.scrollHeight) + 'px' : '150px';
+                });
+            }, 500);
+        }
+        
+        // Gelişmiş AI Event Listener'ları
+        function setupAIAssistantEventListeners() {
+            // AI Mod değiştirme
+            document.querySelectorAll('[data-ai-mode]').forEach(element => {
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    changeAIMode(this.dataset.aiMode);
+                });
+            });
+            
+            // Mesaj gönderme butonu
+            const sendChatBtn = document.getElementById('sendChatBtn');
+            if (sendChatBtn) {
+                sendChatBtn.addEventListener('click', sendMessageToAI);
+            }
+            
+            // Enter tuşu ile mesaj gönderme
+            const aiChatInput = document.getElementById('aiChatInput');
+            if (aiChatInput) {
+                aiChatInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessageToAI();
+                    }
+                });
+            }
+            
+            // Konuşma temizleme
+            const aiClearConversation = document.getElementById('aiClearConversation');
+            if (aiClearConversation) {
+                aiClearConversation.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clearConversation();
+                });
+            }
+            
+            // Önerileri gösterme/gizleme
+            const aiToggleSuggestions = document.getElementById('aiToggleSuggestions');
+            if (aiToggleSuggestions) {
+                aiToggleSuggestions.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleSuggestions();
+                });
+            }
+            
+            // Rapor oluşturucu için özel alan gösterimi
+            const reportFocus = document.getElementById('reportFocus');
+            if (reportFocus) {
+                reportFocus.addEventListener('change', function() {
+                    const customContainer = document.getElementById('customReportCriteriaContainer');
+                    if (customContainer) {
+                        customContainer.style.display = this.value === 'custom' ? 'block' : 'none';
+                    }
+                });
+            }
+            
+            // Rapor oluşturma butonu
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            if (generateReportBtn) {
+                generateReportBtn.addEventListener('click', generateAIReport);
+            }
+            
+            // Tahmin yenileme butonu
+            const refreshPredictionBtn = document.getElementById('refreshPredictionBtn');
+            if (refreshPredictionBtn) {
+                refreshPredictionBtn.addEventListener('click', function() {
+                    renderDeliveryPredictionChart();
+                    showNetworkStatusNotification('Tahminler güncellendi', 'success');
+                });
+            }
+            
+            // Dosya ekleme butonu
+            const aiAttachBtn = document.getElementById('aiAttachBtn');
+            if (aiAttachBtn) {
+                aiAttachBtn.addEventListener('click', function() {
+                    showDataAttachmentOptions();
+                });
+            }
+        }
+        
+        // Yapay Zekaya mesaj gönderme
+        function sendMessageToAI() {
+            const inputField = document.getElementById('aiChatInput');
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            if (!inputField || !messagesContainer) return;
+            
+            const userMessage = inputField.value.trim();
+            
+            if (!userMessage) return;
+            
+            // Kullanıcı mesajını göster
+            displayUserMessage(userMessage);
+            
+            // Input alanını temizle
+            inputField.value = '';
+            inputField.style.height = 'auto';
+            
+            // Öneri panelini kapat
+            const suggestionsPanel = document.getElementById('aiSuggestions');
+            if (suggestionsPanel) suggestionsPanel.style.display = 'none';
+            
+            // Yükleniyor mesajı göster - yazıyor animasyonu
+            const loadingElement = document.createElement('div');
+            loadingElement.id = 'ai-loading-message';
+            loadingElement.className = 'chat-message ai-message d-flex align-items-center';
+            loadingElement.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+                <span class="ms-2">METS AI düşünüyor...</span>
+            `;
+            messagesContainer.appendChild(loadingElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Mesajı oturum geçmişine kaydet
+            aiAssistant.currentSession.messages.push({
+                role: 'user',
+                content: userMessage,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Cevabı oluştur ve göster (yapay gecikme ile gerçekçi bir deneyim)
+            setTimeout(() => {
+                processAIResponse(userMessage);
+            }, 1200);
+        }
+        
+        // Yapay Zeka cevabını işle
+        function processAIResponse(userMessage) {
+            // Yükleniyor mesajını kaldır
+            const loadingElement = document.getElementById('ai-loading-message');
+            if (loadingElement) loadingElement.remove();
+            
+            // Güncel mod ve bağlama göre cevap üret
+            let aiResponse;
+            
+            switch (aiAssistant.currentMode) {
+                case 'analyst':
+                    aiResponse = generateAnalysisResponse(userMessage);
+                    break;
+                case 'reporter':
+                    aiResponse = generateReporterResponse(userMessage);
+                    break;
+                case 'predictor':
+                    aiResponse = generatePredictionResponse(userMessage);
+                    break;
+                case 'expert':
+                    aiResponse = generateExpertResponse(userMessage);
+                    break;
+                default:
+                    aiResponse = generateAssistantResponse(userMessage);
+            }
+            
+            // Dil anlama yeteneklerini kullanarak doğal dil işleme uygula
+            aiResponse = applyNLPFeatures(userMessage, aiResponse);
+            
+            // Cevabı göster
+            displayAIMessage(aiResponse);
+            
+            // Mesajı oturum geçmişine kaydet
+            aiAssistant.currentSession.messages.push({
+                role: 'assistant',
+                content: aiResponse,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Konuşmayı LocalStorage'a kaydet
+            saveConversationToStorage();
+            
+            // Öneri butonlarını göster
+            setTimeout(() => {
+                displaySuggestions();
+            }, 1000);
+            
+            // Yapay Zeka öğrenme sürecini çalıştır
+            learnFromInteraction(userMessage, aiResponse);
+        }
+
+        // Önerileri göster
+        function displaySuggestions() {
+            const suggestionsContainer = document.getElementById('aiSuggestionsContent');
+            if (!suggestionsContainer) return;
+            
+            // Önerilen sorular
+            const suggestedQueries = {
+                assistant: [
+                    "Devam eden siparişlerin durumu nedir?", 
+                    "Hangi siparişlerde gecikme riski var?", 
+                    "Acil tedarik edilmesi gereken malzemeler hangileri?",
+                    "Bugün tamamlanacak görevler nelerdir?"
+                ],
+                analyst: [
+                    "Son 30 günün verimlilik analizi yapabilir misin?", 
+                    "En fazla gecikmeye sebep olan üretim aşaması hangisi?",
+                    "Birimler arası iş transferinde sorun yaşanan noktalar neler?",
+                    "Hangi ürünlerin üretiminde en çok sorun yaşıyoruz?"
+                ],
+                reporter: [
+                    "Bugünkü üretim durumunu özetleyen bir rapor hazırla", 
+                    "Geçen haftanın performans özeti için rapor oluştur",
+                    "Bugünkü kritik durumlar ve alınan aksiyonları raporla",
+                    "Yönetim toplantısı için özet rapor hazırla"
+                ],
+                predictor: [
+                    "Önümüzdeki ay için üretim kapasitemiz yeterli olacak mı?", 
+                    "Hangi siparişlerde teslimat gecikme riski var?",
+                    "Önümüzdeki hafta için malzeme tedariğinde sorun yaşayacak mıyız?",
+                    "Kapasite planlaması için önerilerini paylaşır mısın?"
+                ],
+                expert: [
+                    "RM 36 CB hücresinde oluşan arızanın olası nedenlerini analiz et", 
+                    "Mekanik montajda yaşanan sorun için root cause analizi yap",
+                    "Tekrarlayan kalite sorunlarını azaltmak için öneri geliştir",
+                    "Süreç iyileştirme için öncelikli alanları belirle"
+                ]
+            };
+            
+            // Mevcut moda göre öneriler + dinamik öneriler
+            let suggestions = suggestedQueries[aiAssistant.currentMode] || suggestedQueries.assistant;
+            
+            // Geçmiş etkileşimlere dayalı dinamik öneriler ekle
+            const dynamicSuggestions = generateDynamicSuggestions();
+            if (dynamicSuggestions.length > 0) {
+                suggestions = [...dynamicSuggestions, ...suggestions.slice(0, 2)];
+            }
+            
+            suggestionsContainer.innerHTML = '';
+            
+            suggestions.forEach(suggestion => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-sm btn-outline-secondary suggestion-btn mb-1';
+                button.textContent = suggestion;
+                button.addEventListener('click', () => {
+                    const inputField = document.getElementById('aiChatInput');
+                    if (inputField) {
+                        inputField.value = suggestion;
+                        const suggestionsPanel = document.getElementById('aiSuggestions');
+                        if (suggestionsPanel) suggestionsPanel.style.display = 'none';
+                        sendMessageToAI();
+                    }
+                });
+                suggestionsContainer.appendChild(button);
+            });
+        }
+
+        // Dinamik öneri oluşturma
+        function generateDynamicSuggestions() {
+            const suggestions = [];
+            
+            // Mevcut bağlama dayalı öneriler
+            if (aiAssistant.context === 'order') {
+                // Son konuşulan sipariş numarası var mı?
+                const orderRegex = /#0424-\d{4}/g;
+                let lastOrderId = null;
+                
+                for (let i = aiAssistant.currentSession.messages.length - 1; i >= 0; i--) {
+                    const message = aiAssistant.currentSession.messages[i];
+                    const match = message.content.match(orderRegex);
+                    if (match && match.length > 0) {
+                        lastOrderId = match[0];
+                        break;
+                    }
+                }
+                
+                if (lastOrderId) {
+                    suggestions.push(`${lastOrderId} siparişinin güncel durumu nedir?`);
+                    suggestions.push(`${lastOrderId} için teslim tarihi değişti mi?`);
+                }
+            }
+            
+            return suggestions.slice(0, 3); // En fazla 3 dinamik öneri
+        }
+        
+        // Önerileri göster/gizle
+        function toggleSuggestions() {
+            const suggestionsPanel = document.getElementById('aiSuggestions');
+            const toggleLink = document.getElementById('aiToggleSuggestions');
+            
+            if (!suggestionsPanel || !toggleLink) return;
+            
+            const isVisible = suggestionsPanel.style.display === 'block';
+            
+            if (isVisible) {
+                suggestionsPanel.style.display = 'none';
+                toggleLink.textContent = 'Önerileri göster';
+            } else {
+                suggestionsPanel.style.display = 'block';
+                toggleLink.textContent = 'Önerileri gizle';
+                displaySuggestions();
+            }
+        }
+
+        // Doğal dil işleme özelliklerini uygulama
+        function applyNLPFeatures(userMessage, aiResponse) {
+            // Kullanıcı mesajındaki anahtar kelimeleri ve sorgu tipini analiz et
+            const lowerUserMsg = userMessage.toLowerCase();
+            
+            // Bağlam algılama - soruda geçen bağlamı koru ve bir sonraki soruda kullan
+            if (!aiAssistant.context) {
+                // Yeni bağlam oluştur
+                if (lowerUserMsg.includes('sipariş') || lowerUserMsg.includes('üretim') || lowerUserMsg.includes('#0424')) {
+                    aiAssistant.context = 'order';
+                } else if (lowerUserMsg.includes('malzeme') || lowerUserMsg.includes('stok') || lowerUserMsg.includes('tedarik')) {
+                    aiAssistant.context = 'material';
+                } else if (lowerUserMsg.includes('rapor') || lowerUserMsg.includes('analiz') || lowerUserMsg.includes('performans')) {
+                    aiAssistant.context = 'report';
+                }
+            } else {
+                // Eğer yeni bir bağlam söz konusuysa değiştir, değilse mevcut bağlamı koru
+                if (lowerUserMsg.includes('sipariş') || lowerUserMsg.includes('üretim') || lowerUserMsg.includes('#0424')) {
+                    aiAssistant.context = 'order';
+                } else if (lowerUserMsg.includes('malzeme') || lowerUserMsg.includes('stok') || lowerUserMsg.includes('tedarik')) {
+                    aiAssistant.context = 'material';
+                } else if (lowerUserMsg.includes('rapor') || lowerUserMsg.includes('analiz') || lowerUserMsg.includes('performans')) {
+                    aiAssistant.context = 'report';
+                }
+                
+                // Bağlam bazlı bilgi ekleme
+                if (aiAssistant.context === 'order' && !lowerUserMsg.includes('sipariş') && !lowerUserMsg.includes('#0424')) {
+                    // Bağlamı koruyarak, bağlama özel bilgiler ekle
+                    aiResponse += "\n\n*Not: Önceki sorularınız üretim siparişleriyle ilgiliydi. Başka bir sipariş hakkında bilgi almak isterseniz sipariş numarasını belirtebilirsiniz.*";
+                } else if (aiAssistant.context === 'material' && !lowerUserMsg.includes('malzeme') && !lowerUserMsg.includes('stok')) {
+                    aiResponse += "\n\n*Not: Önceki sorularınız malzeme yönetimiyle ilgiliydi. Belirli bir malzeme hakkında daha detaylı bilgi almak isterseniz malzeme kodunu belirtebilirsiniz.*";
+                }
+            }
+            
+            return aiResponse;
+        }
+
+        // AI modunu değiştir
+        function changeAIMode(mode) {
+            aiAssistant.currentMode = mode;
+            
+            // Aktif sınıfını güncelle
+            document.querySelectorAll('[data-ai-mode]').forEach(element => {
+                element.classList.remove('active');
+                if (element.dataset.aiMode === mode) {
+                    element.classList.add('active');
+                }
+            });
+            
+            // Mod göstergesini güncelle
+            const indicator = document.getElementById('aiModeSwitcher');
+            if (indicator) {
+                const modeNames = {
+                    'assistant': 'Asistan Modu',
+                    'analyst': 'Analiz Modu',
+                    'reporter': 'Rapor Modu',
+                    'predictor': 'Tahmin Modu',
+                    'expert': 'Uzman Modu'
+                };
+                
+                indicator.innerHTML = `<i class="bi bi-gear"></i> ${modeNames[mode] || 'Mod'}`;
+            }
+            
+            // Bağlam göstergesini güncelle
+            updateContextIndicator(mode);
+            
+            // Mod değişikliği hakkında bir mesaj göster
+            const modeChangeMessage = getModeSwitchMessage(mode);
+            displayAIMessage(modeChangeMessage);
+            
+            // Önerileri güncelle
+            displaySuggestions();
+        }
+
+        // Bağlam göstergesini güncelle
+        function updateContextIndicator(mode) {
+            const indicator = document.getElementById('aiContextIndicator');
+            if (!indicator) return;
+            
+            // Mod simgesini güncelle
+            const modeIcons = {
+                'assistant': 'bi-chat-dots',
+                'analyst': 'bi-bar-chart',
+                'reporter': 'bi-file-text',
+                'predictor': 'bi-graph-up-arrow',
+                'expert': 'bi-mortarboard'
+            };
+            
+            indicator.innerHTML = `<i class="bi ${modeIcons[mode] || 'bi-chat'}"></i>`;
+            indicator.title = `${mode.charAt(0).toUpperCase() + mode.slice(1)} Modu`;
+            
+            // Mod tipine göre renk değiştir
+            const modeColors = {
+                'assistant': 'light',
+                'analyst': 'info',
+                'reporter': 'warning',
+                'predictor': 'success',
+                'expert': 'danger'
+            };
+            
+            indicator.className = `input-group-text bg-${modeColors[mode] || 'light'}`;
+        }
+
+        // Konuşmayı temizle
+        function clearConversation() {
+            // Onay al
+            if (!confirm('Bu konuşmayı temizlemek istediğinize emin misiniz?')) return;
+            
+            // Chat alanını temizle
+            document.getElementById('chatMessages').innerHTML = '';
+            
+            // Yeni oturum başlat
+            aiAssistant.currentSession = {
+                id: `session-${Date.now()}`,
+                startTime: new Date().toISOString(),
+                messages: []
+            };
+            
+            // Karşılama mesajını göster
+            displayAIMessage(getWelcomeMessage(), false);
+            
+            // Önerileri güncelle
+            displaySuggestions();
+            
+            showNetworkStatusNotification('Konuşma temizlendi', 'info');
+        }
+        
+        // AI Rapor oluşturma fonksiyonu
+        function generateAIReport() {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+            const departmentsSelect = document.getElementById('reportDepartments');
+            const departments = Array.from(departmentsSelect.selectedOptions).map(opt => opt.value);
+            const focus = document.getElementById('reportFocus').value;
+            const customCriteria = document.getElementById('customReportCriteria')?.value;
+            const includeCharts = document.getElementById('includeCharts').checked;
+            
+            // Validasyon
+            if (!reportType || !startDate || !endDate || departments.length === 0) {
+                alert('Lütfen tüm gerekli alanları doldurun');
+                return;
+            }
+            
+            // Rapor verisini hazırla
+            const reportData = prepareReportData(reportType, startDate, endDate, departments, focus, customCriteria);
+            
+            // Modal'ı kapat
+            const reportModal = bootstrap.Modal.getInstance(document.getElementById('aiReportModal'));
+            if (reportModal) reportModal.hide();
+            
+            // Rapor modal'ını oluştur
+            showGeneratedReport(reportData, includeCharts);
+        }
+        
+        // Oluşturulan raporu göster
+        function showGeneratedReport(reportData, includeCharts) {
+            // Modal HTML'ini oluştur
+            const modalHTML = `
+                <div class="modal fade" id="generatedReportModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"><i class="bi bi-file-earmark-text"></i> ${reportData.title}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="reportContainer">
+                                ${generateReportHTML(reportData, includeCharts)}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+                                    <i class="bi bi-printer"></i> Yazdır
+                                </button>
+                                <button type="button" class="btn btn-outline-success" onclick="exportReportToPDF()">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // HTML'i sayfaya ekle
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Modal'ı göster
+            const modal = new bootstrap.Modal(document.getElementById('generatedReportModal'));
+            modal.show();
+            
+            // Grafikler varsa oluştur
+            if (includeCharts) {
+                setTimeout(() => {
+                    renderReportCharts(reportData);
+                }, 500);
+            }
+            
+            // Modal kapatıldığında temizlik yap
+            document.getElementById('generatedReportModal').addEventListener('hidden.bs.modal', function() {
+                document.getElementById('generatedReportModal').remove();
+            });
+        }
+        
+        // Tahmin modalını göster
+        function showPredictionModal() {
+            const modal = new bootstrap.Modal(document.getElementById('aiPredictionModal'));
+            modal.show();
+            
+            // Grafiği oluştur
+            setTimeout(() => {
+                renderDeliveryPredictionChart();
+            }, 500);
+        }
+        
+        // Rapor modalını göster
+        function showReportModal() {
+            // Bugünkü tarihi varsayılan olarak ayarla
+            const today = new Date();
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(today.getDate() - 7);
+            
+            document.getElementById('reportStartDate').value = oneWeekAgo.toISOString().split('T')[0];
+            document.getElementById('reportEndDate').value = today.toISOString().split('T')[0];
+            
+            // Modal'ı göster
+            const modal = new bootstrap.Modal(document.getElementById('aiReportModal'));
+            modal.show();
+        }
+        
+        // Veri ekleme seçeneklerini göster
+        function showDataAttachmentOptions() {
+            // Gerçek uygulamada bu fonksiyon dosya eklemek için bir arayüz gösterecek
+            alert('Bu özellik demo versiyonunda henüz aktif değil');
+        }
+
+        // LocalStorage'dan konversationları yükle
+        function loadConversationsFromStorage() {
+            const savedConversations = localStorage.getItem('metsAiConversations');
+            if (savedConversations) {
+                aiAssistant.conversationHistory = JSON.parse(savedConversations);
+                
+                // Son oturumu yükle (varsa)
+                if (aiAssistant.conversationHistory.length > 0) {
+                    const lastSession = aiAssistant.conversationHistory[aiAssistant.conversationHistory.length - 1];
+                    
+                    // Son oturum 24 saatten eski değilse, devam et
+                    const lastSessionTime = new Date(lastSession.startTime);
+                    const now = new Date();
+                    const hoursDiff = (now - lastSessionTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24) {
+                        aiAssistant.currentSession = lastSession;
+                    }
+                }
+            }
+        }
+    </script>
 
 
 
