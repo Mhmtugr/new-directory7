@@ -1,0 +1,368 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Kullanıcı model
+model User {
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  password        String
+  department      String?
+  position        String?
+  permissions     String[]  @default([])
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  orders          Order[]   @relation("CreatedByUser")
+  notes           Note[]
+  productionTasks ProductionTask[] @relation("AssignedTo")
+  purchaseRequests PurchaseRequest[] @relation("RequestedByUser")
+  reports         Report[]  @relation("CreatedByUser")
+  predictions     ProblemPrediction[] @relation("CreatedByUser")
+  aiInteractions  AiInteraction[]
+}
+
+// Sipariş model
+model Order {
+  id                String    @id @default(cuid())
+  orderNumber       String    @unique
+  customer          String
+  description       String?
+  deadline          DateTime
+  priority          String    @default("normal") // low, normal, high, urgent
+  status            String    @default("CREATED") // CREATED, SCHEDULED, IN_PROGRESS, DELAYED, COMPLETED
+  technicalSpecs    Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  completedAt       DateTime?
+  
+  createdBy         User      @relation("CreatedByUser", fields: [createdById], references: [id])
+  createdById       String
+  
+  materials         OrderMaterial[]
+  notes             Note[]
+  productionTasks   ProductionTask[]
+  stockChecks       StockCheck[]
+  purchaseRequests  PurchaseRequest[]
+  productionEstimate ProductionEstimate?
+  productionSchedule ProductionSchedule?
+}
+
+// Sipariş materyal ilişki model
+model OrderMaterial {
+  id          String  @id @default(cuid())
+  order       Order   @relation(fields: [orderId], references: [id])
+  orderId     String
+  material    Material @relation(fields: [materialId], references: [id])
+  materialId  String
+  quantity    Int
+  
+  @@unique([orderId, materialId])
+}
+
+// Materyal model
+model Material {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  name          String
+  description   String?
+  unit          String    @default("adet") // adet, kg, metre, etc.
+  category      String
+  quantity      Int       @default(0)
+  minQuantity   Int       @default(5)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  orders        OrderMaterial[]
+  allocations   MaterialAllocation[]
+  movements     MaterialMovement[]
+  purchaseItems PurchaseRequestItem[]
+}
+
+// Materyal tahsis model
+model MaterialAllocation {
+  id          String    @id @default(cuid())
+  material    Material  @relation(fields: [materialId], references: [id])
+  materialId  String
+  orderId     String
+  quantity    Int
+  released    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  releasedAt  DateTime?
+}
+
+// Materyal hareket model
+model MaterialMovement {
+  id          String    @id @default(cuid())
+  material    Material  @relation(fields: [materialId], references: [id])
+  materialId  String
+  quantity    Int
+  type        String    // IN, OUT, ADJUST
+  reference   String?   // Order ID, Purchase ID, etc.
+  description String?
+  createdAt   DateTime  @default(now())
+}
+
+// Sipariş not model
+model Note {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  content   String
+  severity  String   @default("LOW") // LOW, MEDIUM, HIGH
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+// Üretim görev model
+model ProductionTask {
+  id            String    @id @default(cuid())
+  name          String
+  department     String
+  order          Order     @relation(fields: [orderId], references: [id])
+  orderId        String
+  startDate      DateTime
+  dueDate        DateTime
+  completedAt    DateTime?
+  status         String    @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, DELAYED
+  priority       String    @default("normal")
+  description    String?
+  delayReason    String?
+  delayInDays    Int       @default(0)
+  
+  assignedTo     User?     @relation("AssignedTo", fields: [assignedToId], references: [id])
+  assignedToId   String?
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// Üretim tahmini model
+model ProductionEstimate {
+  id                  String    @id @default(cuid())
+  orderId             String
+  totalDays           Int
+  totalHours          Int
+  recommendedStartDate DateTime
+  estimatedEndDate    DateTime
+  departmentTimelines String    // JSON formatında
+  confidenceLevel     String    // high, medium, low
+  method              String    // similar-orders, ml-model, combined, default
+  createdBy           String
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  // İlişkiler
+  order               Order    @relation(fields: [orderId], references: [id])
+  creator             User     @relation(fields: [createdBy], references: [id])
+}
+
+// Üretim planı model
+model ProductionSchedule {
+  id              String    @id @default(cuid())
+  order           Order     @relation(fields: [orderId], references: [id])
+  orderId         String    @unique
+  startDate       DateTime
+  endDate         DateTime
+  status          String    @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, DELAYED
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  createdById     String
+}
+
+// Stok kontrol model
+model StockCheck {
+  id              String    @id @default(cuid())
+  order           Order     @relation(fields: [orderId], references: [id])
+  orderId         String
+  checkedBy       User      @relation(fields: [checkedById], references: [id])
+  checkedById     String
+  hasAllItems     Boolean
+  shortageCount   Int       @default(0)
+  results         Json      // Detailed check results
+  createdAt       DateTime  @default(now())
+}
+
+// Satın alma talep model
+model PurchaseRequest {
+  id              String    @id @default(cuid())
+  order           Order     @relation(fields: [orderId], references: [id])
+  orderId         String
+  status          String    @default("PENDING") // PENDING, APPROVED, COMPLETED
+  requestedBy     User      @relation("RequestedByUser", fields: [requestedById], references: [id])
+  requestedById   String
+  approvedAt      DateTime?
+  completedAt     DateTime?
+  items           PurchaseRequestItem[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Satın alma talep kalem model
+model PurchaseRequestItem {
+  id                String   @id @default(cuid())
+  purchaseRequest   PurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+  purchaseRequestId String
+  material          Material @relation(fields: [materialId], references: [id])
+  materialId        String
+  quantity          Int
+  status            String   @default("REQUESTED") // REQUESTED, ORDERED, RECEIVED
+  estimatedDelivery DateTime?
+  receivedAt        DateTime?
+  notes             String?
+  
+  @@unique([purchaseRequestId, materialId])
+}
+
+// Rapor model
+model Report {
+  id            String    @id @default(cuid())
+  title         String
+  type          String    // production, inventory, orders, etc.
+  content       String    @db.Text
+  period        String    // week, month, quarter, year
+  startDate     DateTime
+  endDate       DateTime
+  rawData       String?   @db.Text
+  createdBy     User      @relation("CreatedByUser", fields: [createdById], references: [id])
+  createdById   String
+  createdAt     DateTime  @default(now())
+}
+
+// Problem tahmini model
+model ProblemPrediction {
+  id            String    @id @default(cuid())
+  analysis      String    @db.Text
+  rawData       String?   @db.Text
+  createdBy     User      @relation("CreatedByUser", fields: [createdById], references: [id])
+  createdById   String
+  createdAt     DateTime  @default(now())
+}
+
+// Bildirim modeli
+model Notification {
+  id                   String    @id @default(cuid())
+  title                String
+  content              String    @db.Text
+  type                 String    // PRODUCTION_DELAY, STOCK_WARNING, DEADLINE_WARNING, NOTE, ESCALATED, RESPONSE_NOTIFICATION, etc.
+  severity             String    @default("LOW") // LOW, MEDIUM, HIGH
+  isRead               Boolean   @default(false)
+  readAt               DateTime?
+  
+  // Hedef kullanıcı veya departman
+  userId               String?   // Belirli bir kullanıcıya göndermek için
+  targetDepartment     String?   // Departman geneline göndermek için
+  
+  // Bildirim yanıtlama
+  requiresResponse     Boolean   @default(false)
+  responded            Boolean   @default(false)
+  responseType         String?   // RESOLVED, IN_PROGRESS, SCHEDULED, REASSIGNED, ESCALATED, REJECTED
+  responseMessage      String?
+  respondedBy          String?
+  respondedAt          DateTime?
+  
+  // İlişkili varlık (sipariş, görev, malzeme vb.)
+  entityType           String?
+  entityId             String?
+  
+  // Orijinal bildirime referans
+  originalNotificationId String?
+  
+  // Zaman damgaları
+  createdAt            DateTime  @default(now())
+  createdBy            String?   // Oluşturan kullanıcı ID'si
+  
+  // İlişkiler
+  reminders            Reminder[]
+}
+
+// Hatırlatıcı modeli
+model Reminder {
+  id               String   @id @default(cuid())
+  title            String
+  content          String
+  completed        Boolean  @default(false)
+  dueDate          DateTime
+  completedAt      DateTime?
+  
+  // İlişkili varlık
+  entityType       String?
+  entityId         String?
+  
+  // İlişkiler
+  userId           String
+  notificationId   String?
+  notification     Notification? @relation(fields: [notificationId], references: [id])
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// AI Etkileşim model (öğrenme ve iyileştirme için)
+model AiInteraction {
+  id            String    @id @default(cuid())
+  query         String
+  response      String    @db.Text
+  context       String?   // JSON string of the context provided
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  feedback      Int?      // 1-5 rating of response quality
+  createdAt     DateTime  @default(now())
+}
+
+// Hata loglama modeli
+model ErrorLog {
+  id            String    @id @default(cuid())
+  level         String    @default("error") // debug, info, warning, error, critical
+  message       String
+  stackTrace    String?   @db.Text
+  context       String?   @db.Text
+  clientId      String?   // İstemciden gelen hata ID
+  userId        String?   // Hatanın oluştuğu kullanıcı
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+}
+
+// Üretim sorunu modeli
+model ProductionIssue {
+  id                String    @id @default(cuid())
+  title             String
+  description       String    @db.Text
+  riskLevel         String    // LOW, MEDIUM, HIGH
+  affectedDepartments String?
+  suggestedSolution String?   @db.Text
+  estimatedImpact   String?
+  isResolved        Boolean   @default(false)
+  resolvedAt        DateTime?
+  resolvedBy        String?
+  resolutionNotes   String?   @db.Text
+  source            String    // AI_DETECTION, MANUAL, SYSTEM_ALERT
+  detectedBy        String?   // kullanıcı ID'si
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // İlişkiler
+  relatedOrderId    String?
+  relatedTaskId     String?
+}
+
+// Üretim Analizi modeli
+model ProductionAnalysis {
+  id           String    @id @default(cuid())
+  analysisText String    @db.Text
+  analysisType String    // ISSUE_PREDICTION, EFFICIENCY_ANALYSIS, CAPACITY_PLANNING
+  rawData      String?   @db.Text
+  createdAt    DateTime  @default(now())
+  createdBy    String?   // Kullanıcı ID
+}
