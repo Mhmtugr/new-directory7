@@ -1,0 +1,16 @@
+// R3/index.html'den taşınan kart öncelik stilleri
+
+.priority-high {
+    border-left: 4px solid var(--danger-color); // Değişken kullanıldı
+}
+
+.priority-medium {
+    border-left: 4px solid var(--warning-color); // Değişken kullanıldı
+}
+
+.priority-low {
+    border-left: 4px solid var(--success-color); // Değişken kullanıldı
+}
+
+// Diğer kart stilleri buraya eklenebilir
+// ... existing code ... 
