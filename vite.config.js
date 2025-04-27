@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
+import * as sass from 'sass';
 
 export default defineConfig({
   plugins: [
@@ -26,12 +27,16 @@ export default defineConfig({
           }
         ],
         // Service worker'ın kök dizinde kaydedilmesini sağla
-        swDest: 'sw.js',
-        navigateFallback: 'index.html'
+        swDest: 'dist/sw.js', // Doğru çıktı yolu
+        navigateFallback: '/index.html'
       },
-      // Public klasöründeki manifest.json dosyası kullanılsın
+      // PWA Ayarlarını düzenleme
       injectManifest: false,
-      manifest: false
+      manifest: false,
+      // Strict mode kapatılıyor build hatalarını önlemek için
+      selfDestroying: false,
+      strategies: 'generateSW',
+      buildBase: '/'
     })
   ],
   base: '/', // Base URL'i kök dizin olarak ayarla
@@ -76,11 +81,11 @@ export default defineConfig({
     devSourcemap: true,
     preprocessorOptions: {
       scss: {
+        // Modern SASS API kullanımı
+        implementation: sass,
         sassOptions: {
           outputStyle: 'compressed',
-          sourceMapEmbed: true,
-          sourceMapContents: true,
-          includePaths: [path.resolve(__dirname, 'src/styles')]
+          charset: false
         }
       }
     }
