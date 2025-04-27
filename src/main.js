@@ -8,7 +8,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import pinia from './store';
-import './styles/main_new.scss'; // Changed to use our clean SCSS file
+import './styles/main.scss'; // Ana stil dosyasını kullan
 
 // Bootstrap ikonları ve CSS yükleniyor
 import 'bootstrap/dist/css/bootstrap.min.css';

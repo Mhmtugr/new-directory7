@@ -14,78 +14,142 @@ const routes = [
       {
         path: '',
         name: 'Home',
-        component: () => import('@/views/Dashboard.vue'),
+        component: () => import('@/views/dashboard/Dashboard.vue'),
         meta: { title: 'Ana Panel' }
       },
+      
       // Orders Module Routes
       {
         path: 'orders',
         name: 'Orders',
-        component: () => import('@/views/Orders.vue'),
+        component: () => import('@/views/orders/OrderList.vue'),
         meta: { title: 'Siparişler' }
       },
       {
         path: 'orders/create',
         name: 'OrderCreate',
-        component: () => import('@/modules/orders/OrderCreation.vue'),
+        component: () => import('@/views/orders/OrderCreate.vue'),
         meta: { title: 'Yeni Sipariş' }
       },
       {
         path: 'orders/:id',
         name: 'OrderDetail',
-        component: () => import('@/modules/orders/OrderDetail.vue'),
+        component: () => import('@/views/orders/OrderDetail.vue'),
         props: true,
         meta: { title: 'Sipariş Detayı' }
       },
-      // Production Module Route
+      
+      // Production Module Routes
       {
         path: 'production',
         name: 'Production',
-        component: () => import('@/modules/production/ProductionView.vue'),
+        component: () => import('@/views/production/Production.vue'),
         meta: { title: 'Üretim' }
       },
-      // Purchasing Module Route
+      {
+        path: 'production/planning',
+        name: 'ProductionPlanning',
+        component: () => import('@/views/planning/Planning.vue'),
+        meta: { title: 'Üretim Planlaması' }
+      },
+      {
+        path: 'production/monitoring',
+        name: 'ProductionMonitoring',
+        component: () => import('@/views/production/Production.vue'),
+        meta: { title: 'Üretim İzleme' }
+      },
+      
+      // Inventory Module Routes
+      {
+        path: 'inventory',
+        name: 'Inventory',
+        component: () => import('@/views/inventory/Inventory.vue'),
+        meta: { title: 'Envanter' }
+      },
+      {
+        path: 'inventory/stock',
+        name: 'Stock',
+        component: () => import('@/views/inventory/Stock.vue'),
+        meta: { title: 'Stok Yönetimi' }
+      },
+      {
+        path: 'inventory/materials',
+        name: 'Materials',
+        component: () => import('@/views/inventory/Materials.vue'),
+        meta: { title: 'Malzeme Yönetimi' }
+      },
+      
+      // Purchasing Module Routes
       {
         path: 'purchasing',
         name: 'Purchasing',
-        component: () => import('@/modules/purchasing/PurchasingView.vue'),
+        component: () => import('@/views/purchasing/Purchasing.vue'),
         meta: { title: 'Satın Alma' }
       },
+      {
+        path: 'purchasing/suppliers',
+        name: 'Suppliers',
+        component: () => import('@/views/purchasing/Suppliers.vue'),
+        meta: { title: 'Tedarikçiler' }
+      },
+      
       // Technical Module Route
       {
         path: 'technical',
         name: 'Technical',
-        component: () => import('@/views/Technical.vue'),
+        component: () => import('@/views/technical/Technical.vue'),
         meta: { title: 'Teknik Veri' }
       },
-      // Inventory Module Route
-      {
-        path: 'inventory',
-        name: 'Inventory',
-        component: () => import('@/modules/inventory/InventoryView.vue'),
-        meta: { title: 'Envanter' }
-      },
-      // Materials Module Route
-      {
-        path: 'materials',
-        name: 'Materials',
-        component: () => import('@/views/Materials.vue'),
-        meta: { title: 'Malzeme Yönetimi' }
-      },
+      
       // Planning Module Route
       {
         path: 'planning',
         name: 'Planning',
-        component: () => import('@/views/Planning.vue'),
+        component: () => import('@/views/planning/Planning.vue'),
         meta: { title: 'Planlama' }
       },
-      // Reports Module Route
+      
+      // Reports Module Routes
       {
         path: 'reports',
         name: 'Reports',
-        component: () => import('@/views/Dashboard.vue'),
+        component: () => import('@/views/reports/Reports.vue'),
         meta: { title: 'Raporlar' }
       },
+      {
+        path: 'reports/orders',
+        name: 'OrderReports',
+        component: () => import('@/views/reports/OrderReports.vue'),
+        meta: { title: 'Sipariş Raporları' }
+      },
+      {
+        path: 'reports/production',
+        name: 'ProductionReports',
+        component: () => import('@/views/reports/ProductionReports.vue'),
+        meta: { title: 'Üretim Raporları' }
+      },
+      
+      // User Management and Settings (Admin Only)
+      {
+        path: 'users',
+        name: 'UserManagement',
+        component: () => import('@/views/admin/UserManagement.vue'),
+        meta: { title: 'Kullanıcı Yönetimi', requiredRole: 'admin' }
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@/views/admin/Settings.vue'),
+        meta: { title: 'Ayarlar', requiredRole: 'admin' }
+      },
+      
+      // Help Page
+      {
+        path: 'help',
+        name: 'Help',
+        component: () => import('@/views/help/Help.vue'),
+        meta: { title: 'Yardım' }
+      }
     ]
   },
   {
@@ -95,13 +159,13 @@ const routes = [
       {
         path: 'login',
         name: 'Login',
-        component: () => import('@/views/Login.vue'),
+        component: () => import('@/views/auth/Login.vue'),
         meta: { title: 'Giriş Yap' }
       },
       {
         path: 'register',
         name: 'Register',
-        component: () => import('@/views/Login.vue'),
+        component: () => import('@/views/auth/Login.vue'),
         meta: { title: 'Kayıt Ol' }
       }
     ]
@@ -110,7 +174,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/components/NotFound.vue'),
+    component: () => import('@/components/shared/NotFound.vue'),
     meta: { layout: 'blank', title: 'Sayfa Bulunamadı' }
   }
 ];
